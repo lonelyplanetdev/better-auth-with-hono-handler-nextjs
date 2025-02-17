@@ -12,7 +12,7 @@ const routes = app
   .post("/auth/signup", async (c) => {
     const { email, password } = await c.req.json();
     await auth.api.signUpEmail({
-      headers: c.req.header(),
+      headers: c.req.raw.headers,
       body: {
         email,
         name: email,
@@ -24,7 +24,7 @@ const routes = app
   .post("/auth/signin", async (c) => {
     const { email, password } = await c.req.json();
     await auth.api.signInEmail({
-      headers: c.req.header(),
+      headers: c.req.raw.headers,
       body: {
         email,
         password,
@@ -34,7 +34,7 @@ const routes = app
   })
   .post("/auth/signout", async (c) => {
     await auth.api.signOut({
-      headers: c.req.header(),
+      headers: c.req.raw.headers,
     });
     return c.json({ success: true });
   });
