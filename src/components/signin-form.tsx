@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { client } from "@/lib/hono-client";
 
-interface SignInFormProps {
-  signInAction: (email: string, password: string) => Promise<void>;
-}
-
-export function SignInForm({ signInAction }: SignInFormProps) {
-  const [isPending, startTransition] = useTransition();
+export function SignInForm() {
+  const [isPending, setIsPending] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    startTransition(async () => {
-      try {
-        await signInAction(email, password);
-        toast.success("Signed in successfully");
-        // Clear form
-        setEmail("");
-        setPassword("");
-      } catch (error) {
-        toast.error("Failed to sign in: " + (error as Error).message);
-      }
-    });
+    setIsPending(true);
+    try {
+      await client.api.auth.signin.$post({
+        json: { email, password },
+      });
+      toast.success("Signed in successfully");
+      // Clear form
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      toast.error("Failed to sign in: " + (error as Error).message);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
